@@ -2,6 +2,7 @@
 *   main.c
 */
 
+#include <stdio.h>
 #include "types.h"
 #include "memory.h"
 #include "crypto.h"
@@ -11,6 +12,9 @@
 #include "utils.h"
 #include "buttons.h"
 #include "../build/bundled.h"
+#include "hid.h"
+
+u8 *top_screen, *bottom_screen;
 
 static void (*const itcmStub)(Firm *firm, bool isNand) = (void (*const)(Firm *, bool))0x01FF8000;
 static volatile Arm11Operation *operation = (volatile Arm11Operation *)0x1FF80204;
@@ -22,7 +26,7 @@ static void invokeArm11Function(Arm11Operation op)
     while(*operation != ARM11_READY); 
 }
 
-static void loadFirm(bool isNand, bool bootOnce)
+static void loadFirm(bool isNand, bool bootOnce, bool bootfirm, u32 index)
 {
     Firm *firmHeader = (Firm *)0x080A0000;
     const char *firmName = bootOnce ? "bootonce.firm" : "boot.firm";
@@ -55,10 +59,18 @@ static void loadFirm(bool isNand, bool bootOnce)
     u32 calculatedFirmSize = checkFirmHeader(firmHeader, (u32)firm, isPreLockout);
 
     if(!calculatedFirmSize) mcuPowerOff();
-
-    if(fileRead(firm, firmName, 0, maxFirmSize) < calculatedFirmSize || !checkSectionHashes(firm)) mcuPowerOff();
-    if(bootOnce) fileDelete(firmName);
-    
+	
+	if(bootfirm)
+	{
+		char path[125];
+		snprintf(path, 125, "BS9/%s", tab[index]);
+		fileRead(firm, path, 0, maxFirmSize);
+		
+	}else{
+		if(fileRead(firm, firmName, 0, maxFirmSize) < calculatedFirmSize || !checkSectionHashes(firm)) mcuPowerOff();
+		if(bootOnce) fileDelete(firmName);
+    }
+	
     if(isScreenInit)
     {
         invokeArm11Function(INIT_SCREENS);
@@ -70,6 +82,53 @@ static void loadFirm(bool isNand, bool bootOnce)
     //Launch firm
     invokeArm11Function(PREPARE_ARM11_FOR_FIRMLAUNCH);
     itcmStub(firm, isNand);
+}
+
+//Function Boot9Strap Manager
+static void BS9Manager(void)
+{
+	
+	//screenInit arm11
+	invokeArm11Function(INIT_SCREENS);
+	i2cWriteRegister(I2C_DEV_MCU, 0x22, 0x2A);
+	top_screen = (u8 *)0x18300000;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ;
+	bottom_screen = (u8 *)0x18346500;
+	
+	
+	//menu
+	u32 count = GetDirList("/BS9");//opendir list firm folder "sd:/BS9"
+	u32 index = 0;
+	while (true) 
+	{
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 200 - ((25 * 8) / 2), 10, true, "Boot9Strap Manager v1.2.1");//Header
+		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 262, 230, true, "Power: Power off");
+		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 230, true, "A: Boot Payload");
+		for (u32 i = 0; i < count; i++) 
+		{
+			if(i != index)
+			{
+				DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*13 + 2), true, "%s", tab[i]);
+			}
+			if(i == index)
+			{
+				DrawStringFColor(COLOR_SELECT, COLOR_BLACK, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*13 + 2), true, "%s", tab[i]);
+			}
+		}
+		u32 pad_state = InputWait();
+				
+		if (pad_state & BUTTON_A) {
+			loadFirm(true, false, true, index);
+		} else if (pad_state & BUTTON_DOWN) {
+			index = (index == count - 1) ? 0 : index + 1;	
+			} else if (pad_state & BUTTON_UP) {
+			index = (index == 0) ? count - 1 : index - 1;	
+		} else if (pad_state & BUTTON_POWER) {
+			mcuPowerOff();	
+		}
+		
+	}
+
+	
 }
 
 void main(void)
@@ -89,9 +148,10 @@ void main(void)
             while(HID_PAD & NTRBOOT_BUTTONS);
             wait(1000ULL);
         }
-
-        loadFirm(false, true);
-        loadFirm(false, false);
+		u32 index = 0;
+		if(HID_PAD & BUTTON_L1)BS9Manager();
+        loadFirm(false, true, false, index);
+        loadFirm(false, false, false, index);
         unmountSd();
     }
 
@@ -103,7 +163,9 @@ void main(void)
             while(HID_PAD & NTRBOOT_BUTTONS);
             wait(1000ULL);
         }
-        loadFirm(true, false);
+		u32 index = 0;
+		if(HID_PAD & BUTTON_L1)BS9Manager();
+        loadFirm(true, false, false, index);
     }
 
     mcuPowerOff();

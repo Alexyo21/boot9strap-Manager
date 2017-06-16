@@ -202,6 +202,8 @@ typedef struct {
 #if _USE_LFN != 0
 	TCHAR	altname[13];			/* Altenative file name */
 	TCHAR	fname[_MAX_LFN + 1];	/* Primary file name */
+	TCHAR*	lfname;			/* Pointer to the LFN buffer */
+	UINT 	lfsize;			/* Size of LFN buffer in TCHAR */
 #else
 	TCHAR	fname[13];		/* File name */
 #endif

@@ -1,8 +1,15 @@
-Boot9strap
+fork Boot9strap v1.2
 =====
 ![License](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 Boot9/Boot11 code execution.
+
+
+**L1 + Power for Boot9Strap Manager v1.2.1**
+exemple folder:
+sd:/BS9/luma.firm
+sd:/BS9/Decrypt9WIP.firm
+d:/BS9/GodMod9.firm
 
 For more details, refer to the presentation [here](https://sciresm.github.io/33-and-a-half-c3/).
 
