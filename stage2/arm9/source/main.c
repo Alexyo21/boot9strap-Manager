@@ -100,7 +100,7 @@ static void BS9Manager(bool NANDorSD)
 	u32 index = 0;
 	while (true) 
 	{
-		DrawStringFColor(COLOR_RED, COLOR_BLACK, 200 - ((25 * 8) / 2), 10, true, "Boot9Strap Manager v1.2.2");//Header
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 200 - ((25 * 8) / 2), 10, true, "Boot9Strap Manager v1.2.1");//Header
 		
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 220, true, "L1+R1+X: Dump Boot9/11 and OTP         ");
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 230, true, "A: Boot Payload");

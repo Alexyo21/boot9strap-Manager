@@ -10,7 +10,6 @@ name := boot9strap
 
 dir_arm9_stage2 := stage2/arm9
 dir_arm11_stage2 := stage2/arm11
-dir_loader_stage2 := stage2/loader
 
 .PHONY: $(dir_out)
 .PHONY: $(dir_build)
