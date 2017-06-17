@@ -193,7 +193,7 @@ void DumpBoot9_11_OTP(bool NANDorSD)
 		fileWrite((void *)0x08080000, "boot9strap/boot9.bin", 0x10000);
 		fileWrite((void *)0x08090000, "boot9strap/boot11.bin", 0x10000);
 		fileWrite((void *)0x10012000, "boot9strap/otp.bin", 0x100);
-		DrawStringFColor(COLOR_GREEN, COLOR_BLACK, 10, 220, true, "L1+R1+X: Dump Boot9/11 and OTP Succes !");
+		DrawStringFColor(COLOR_GREEN, COLOR_BLACK, 10, 220, true, "X: Dump Boot9/11 and OTP Succes !");
 	}
     /* Wait until buttons are not held, for compatibility. */
     while(HID_PAD & NTRBOOT_BUTTONS);

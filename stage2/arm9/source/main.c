@@ -102,7 +102,7 @@ static void BS9Manager(bool NANDorSD)
 	{
 		DrawStringFColor(COLOR_RED, COLOR_BLACK, 200 - ((25 * 8) / 2), 10, true, "Boot9Strap Manager v1.2.1");//Header
 		
-		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 220, true, "L1+R1+X: Dump Boot9/11 and OTP         ");
+		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 220, true, "X: Dump Boot9/11 and OTP         ");
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 230, true, "A: Boot Payload");
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 262, 230, true, "Power: Power off");
 		for (u32 i = 0; i < count; i++) 
@@ -124,7 +124,7 @@ static void BS9Manager(bool NANDorSD)
 			index = (index == count - 1) ? 0 : index + 1;	
 			} else if (pad_state & BUTTON_UP) {
 			index = (index == 0) ? count - 1 : index - 1;	
-		} else if (HID_PAD & NTRBOOT_BUTTONS) {
+		} else if (pad_state & BUTTON_X) {
 			DumpBoot9_11_OTP(NANDorSD);	
 		} else if (pad_state & BUTTON_POWER) {
 			mcuPowerOff();	
