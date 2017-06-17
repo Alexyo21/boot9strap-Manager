@@ -34,11 +34,11 @@ bool mountCtrNand(void);
 u32 fileRead(void *dest, const char *path, u32 size, u32 maxSize);
 bool fileWrite(const void *buffer, const char *path, u32 size);
 bool fileDelete(const char *path);
-
+void DumpBoot9_11_OTP(bool NANDorSD);
 
 char tab[50][32];
 u32 countnamefirm[50];
 u32 GetDirList(char* path);
 
 void DrawStringFColor(int colorfont, int colorbg, int x, int y, bool use_top, const char *format, ...);
-
+void ClearScreenFull(bool clear_top, bool clear_bottom);

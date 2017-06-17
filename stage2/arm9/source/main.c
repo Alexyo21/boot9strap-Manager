@@ -85,7 +85,7 @@ static void loadFirm(bool isNand, bool bootOnce, bool bootfirm, u32 index)
 }
 
 //Function Boot9Strap Manager
-static void BS9Manager(void)
+static void BS9Manager(bool NANDorSD)
 {
 	
 	//screenInit arm11
@@ -100,9 +100,11 @@ static void BS9Manager(void)
 	u32 index = 0;
 	while (true) 
 	{
-		DrawStringFColor(COLOR_RED, COLOR_BLACK, 200 - ((25 * 8) / 2), 10, true, "Boot9Strap Manager v1.2.1");//Header
-		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 262, 230, true, "Power: Power off");
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 200 - ((25 * 8) / 2), 10, true, "Boot9Strap Manager v1.2.2");//Header
+		
+		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 220, true, "L1+R1+X: Dump Boot9/11 and OTP         ");
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 230, true, "A: Boot Payload");
+		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 262, 230, true, "Power: Power off");
 		for (u32 i = 0; i < count; i++) 
 		{
 			if(i != index)
@@ -122,6 +124,8 @@ static void BS9Manager(void)
 			index = (index == count - 1) ? 0 : index + 1;	
 			} else if (pad_state & BUTTON_UP) {
 			index = (index == 0) ? count - 1 : index - 1;	
+		} else if (HID_PAD & NTRBOOT_BUTTONS) {
+			DumpBoot9_11_OTP(NANDorSD);	
 		} else if (pad_state & BUTTON_POWER) {
 			mcuPowerOff();	
 		}
@@ -137,35 +141,16 @@ void main(void)
 
     if(mountSd())
     {
-        /* I believe this is the canonical secret key combination. */
-        if(HID_PAD == NTRBOOT_BUTTONS)
-        {
-            fileWrite((void *)0x08080000, "boot9strap/boot9.bin", 0x10000);
-            fileWrite((void *)0x08090000, "boot9strap/boot11.bin", 0x10000);
-            fileWrite((void *)0x10012000, "boot9strap/otp.bin", 0x100);
-
-            /* Wait until buttons are not held, for compatibility. */
-            while(HID_PAD & NTRBOOT_BUTTONS);
-            wait(1000ULL);
-        }
-		u32 index = 0;
-		if(HID_PAD & BUTTON_L1)BS9Manager();
-        loadFirm(false, true, false, index);
-        loadFirm(false, false, false, index);
+		if(HID_PAD & BUTTON_L1)BS9Manager(true);
+        loadFirm(false, true, false, 0);
+        loadFirm(false, false, false, 0);
         unmountSd();
     }
 
     if(mountCtrNand())
     {
-        /* Wait until buttons are not held, for compatibility. */
-        if(HID_PAD == NTRBOOT_BUTTONS)
-        {
-            while(HID_PAD & NTRBOOT_BUTTONS);
-            wait(1000ULL);
-        }
-		u32 index = 0;
-		if(HID_PAD & BUTTON_L1)BS9Manager();
-        loadFirm(true, false, false, index);
+		if(HID_PAD & BUTTON_L1)BS9Manager(false);
+        loadFirm(true, false, false, 0);
     }
 
     mcuPowerOff();
