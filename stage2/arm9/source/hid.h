@@ -5,6 +5,7 @@
 
 
 #define HID_STATE (*(volatile u32*)0x10146000)
+#define HID_PAD                (*(vu32 *)0x10146000 ^ 0xFFF)
 
 #define BUTTON_A     			(1 << 0)	//0FFF->0FFE 	0x00000001
 #define BUTTON_B     			(1 << 1)	//0FFF->0FFD 	0x00000002
@@ -26,6 +27,8 @@
 
 #define BUTTON_ANY    			0x00000FFF
 #define BUTTON_ARROW  (BUTTON_RIGHT|BUTTON_LEFT|BUTTON_UP|BUTTON_DOWN)
+#define NTRBOOT_BUTTONS (BUTTON_START | BUTTON_SELECT | BUTTON_X)
+
 
 #define BIT_0	(1 << 0) //0x01
 #define BIT_1	(1 << 1) //0x02

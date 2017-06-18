@@ -10,9 +10,9 @@
 #include "fs.h"
 #include "firm.h"
 #include "utils.h"
-#include "buttons.h"
 #include "../build/bundled.h"
 #include "hid.h"
+#include "draw.h"
 
 u8 *top_screen, *bottom_screen;
 
@@ -84,6 +84,7 @@ static void loadFirm(bool isNand, bool bootOnce, bool bootfirm, u32 index)
     itcmStub(firm, isNand);
 }
 
+//#include "buttonimage.h"
 //Function Boot9Strap Manager
 static void BS9Manager(bool NANDorSD)
 {
@@ -109,11 +110,20 @@ static void BS9Manager(bool NANDorSD)
 		{
 			if(i != index)
 			{
+				//draw button image
+				//drawimage(button, 80, 50 + (i*13),240, 13);
+				//DrawStringFColor(COLOR_WHITE, COLOR_TRANSPARENT, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*13 + 2), true, "%s", tab[i]);
 				DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*13 + 2), true, "%s", tab[i]);
+			
 			}
 			if(i == index)
 			{
+				//draw button image
+				//drawimage(button, 80, 50 + (i*13),240, 13);
+				//DrawStringFColor(COLOR_SELECT, COLOR_TRANSPARENT, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*13 + 2), true, "%s", tab[i]);
+			
 				DrawStringFColor(COLOR_SELECT, COLOR_BLACK, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*13 + 2), true, "%s", tab[i]);
+			
 			}
 		}
 		u32 pad_state = InputWait();

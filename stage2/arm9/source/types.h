@@ -17,6 +17,8 @@ typedef volatile u8 vu8;
 typedef volatile u16 vu16;
 typedef volatile u32 vu32;
 typedef volatile u64 vu64;
+typedef unsigned int	uint;
+typedef unsigned char	uchar;
 
 #define CFG9_SYSPROT9   (*(vu8 *)0x10000000)
 #define CFG9_SYSPROT11  (*(vu8 *)0x10000001)
