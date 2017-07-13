@@ -20,10 +20,99 @@
 *   Notices displayed by works containing it.
 */
 
+#include <stdio.h>
+
+
+#include "utils.h"
+#include "i2c.h"
+#include "fs.h"
+#include "types.h"
+#include "../build/bundled.h"
+
 #include "firm.h"
 #include "memory.h"
-#include "crypto.h"
+#include "crypto/crypto.h"
+#include "crypto/sha.h"
 
+
+static void (*const itcmStub)(Firm *firm, bool isNand) = (void (*const)(Firm *, bool))0x01FF8000;
+static volatile Arm11Operation *operation = (volatile Arm11Operation *)0x1FF80204;
+
+void invokeArm11Function(Arm11Operation op)
+{
+    while(*operation != ARM11_READY);
+    *operation = op;
+    while(*operation != ARM11_READY); 
+}
+//====================Load Firm ================================
+void loadFirm(bool isNand, bool bootfirm, u32 index)
+{
+    Firm *firm;
+	Firm *firmHeader = (Firm *)0x080A0000;
+    u32 maxFirmSize;
+	
+	if(bootfirm)
+	{
+		char path[125];
+		snprintf(path, 125, "BS9/%s", tab[index]);
+		if(fileRead(firmHeader, path, 0x200, 0) != 0x200) return;	
+		
+	}else{
+		
+		if(fileRead(firmHeader, "boot.firm", 0x200, 0) != 0x200) return;
+	}
+	
+    bool isPreLockout = ((firmHeader->reserved2[0] & 2) != 0),
+         isScreenInit = ((firmHeader->reserved2[0] & 1) != 0);
+	
+    if(!isPreLockout)
+    {
+        //Lockout
+        while(!(CFG9_SYSPROT9  & 1)) CFG9_SYSPROT9  |= 1;
+        while(!(CFG9_SYSPROT11 & 1)) CFG9_SYSPROT11 |= 1;
+        invokeArm11Function(WAIT_BOOTROM11_LOCKED);
+		
+        firm = (Firm *)0x20001000;
+        maxFirmSize = 0x07FFF000; //around 127MB (although we don't enable ext FCRAM on N3DS, beware!)
+    }
+    else
+    {
+        //Uncached area, shouldn't affect performance too much, though
+        firm = (Firm *)0x18000000;
+        maxFirmSize = 0x300000; //3MB
+    }
+
+    u32 calculatedFirmSize = checkFirmHeader(firmHeader, (u32)firm, isPreLockout);
+
+    if(!calculatedFirmSize) mcuPowerOff();
+	
+	if(bootfirm)
+	{
+		char path[125];
+		snprintf(path, 125, "BS9/%s", tab[index]);
+		fileRead(firm, path, 0, maxFirmSize);
+		
+	}else{
+		
+		if(fileRead(firm, "boot.firm", 0, maxFirmSize) < calculatedFirmSize || !checkSectionHashes(firm)) mcuPowerOff();
+		
+    }
+	
+	//screenInit arm11
+    if(isScreenInit)
+    {
+        invokeArm11Function(INIT_SCREENS);
+        i2cWriteRegister(I2C_DEV_MCU, 0x22, 0x2A); //Turn on backlight
+    }
+
+    memcpy((void *)itcmStub, itcm_stub_bin, itcm_stub_bin_size);
+
+    //Launch firm
+    invokeArm11Function(PREPARE_ARM11_FOR_FIRMLAUNCH);
+    itcmStub(firm, isNand);
+	
+}
+//============================================================================================
 static __attribute__((noinline)) bool overlaps(u32 as, u32 ae, u32 bs, u32 be)
 {
     if(as <= bs && bs <= ae)

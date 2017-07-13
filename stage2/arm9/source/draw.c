@@ -56,8 +56,9 @@ void DrawStringFColor(int colorfont, int colorbg, int x, int y, bool use_top, co
     }
 }
 
-void ClearScreen(u8* screen, int width, int color)
+void ClearScreen(u8* screen, int color)
 {
+    int width = (screen == TOP_SCREEN) ? SCREEN_WIDTH_TOP : SCREEN_WIDTH_BOT;
     if (color == COLOR_TRANSPARENT) color = COLOR_BLACK;
     for (int i = 0; i < (width * SCREEN_HEIGHT); i++) {
         *(screen++) = color >> 16;  // B
@@ -66,14 +67,10 @@ void ClearScreen(u8* screen, int width, int color)
     }
 }
 
-void ClearScreenFull(bool clear_top, bool clear_bottom)
+void ClearScreenF(bool clear_top, bool clear_bottom, int color)
 {
-    if (clear_top) {
-        ClearScreen(TOP_SCREEN, SCREEN_WIDTH_TOP, COLOR_BLACK);
-    }
-    if (clear_bottom) {
-        ClearScreen(BOT_SCREEN, SCREEN_WIDTH_BOT, COLOR_BLACK);
-    }
+    if (clear_top) ClearScreen(TOP_SCREEN, color);
+    if (clear_bottom) ClearScreen(BOT_SCREEN, color);
 }
 
 #define SET_PIXEL(buffer, x, y, rgb)\

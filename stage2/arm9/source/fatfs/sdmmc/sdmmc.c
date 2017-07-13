@@ -63,13 +63,13 @@ static inline void setckl(u32 data)
     sdmmc_mask16(REG_SDCLKCTL, 0x0, 0x100);
 }
 
-/*
+
 mmcdevice *getMMCDevice(int drive)
 {
     if(drive == 0) return &handleNAND;
     return &handleSD;
 }
-*/
+
 
 static int geterror(struct mmcdevice *ctx)
 {
@@ -248,7 +248,7 @@ int __attribute__((noinline)) sdmmc_nand_readsectors(u32 sector_no, u32 numsecto
     return geterror(&handleNAND);
 }
 
-/*
+
 int __attribute__((noinline)) sdmmc_nand_writesectors(u32 sector_no, u32 numsectors, const u8 *in) //experimental
 {
     if(handleNAND.isSDHC == 0) sector_no <<= 9;
@@ -263,7 +263,7 @@ int __attribute__((noinline)) sdmmc_nand_writesectors(u32 sector_no, u32 numsect
     inittarget(&handleSD);
     return geterror(&handleNAND);
 }
-*/
+
 
 static u32 calcSDSize(u8 *csd, int type)
 {

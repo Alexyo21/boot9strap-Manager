@@ -23,6 +23,14 @@
 #define COLOR_GREY          RGB(0x77, 0x77, 0x77)
 #define COLOR_PURPLE        RGB(0x66, 0x00, 0xFF)
 #define COLOR_TRANSPARENT   RGB(0xFF, 0x00, 0xEF) // otherwise known as 'super fuchsia'
+#define COLOR_ORANGE        RGB(0xFF, 0xA5, 0x00)
+
+#define COLOR_BRIGHTRED     RGB(0xFF, 0x30, 0x30)
+#define COLOR_DARKRED       RGB(0x80, 0x00, 0x00)
+#define COLOR_BRIGHTYELLOW  RGB(0xFF, 0xFF, 0x30)
+#define COLOR_BRIGHTGREEN   RGB(0x30, 0xFF, 0x30)
+#define COLOR_BRIGHTBLUE    RGB(0x30, 0x30, 0xFF)
+#define COLOR_GREYGREEN     RGB(0xA0, 0xFF, 0xA0)
 
 extern u8 *top_screen, *bottom_screen;
 #define TOP_SCREEN top_screen
@@ -31,6 +39,6 @@ extern u8 *top_screen, *bottom_screen;
 
 
 void DrawStringFColor(int colorfont, int colorbg, int x, int y, bool use_top, const char *format, ...);
-void ClearScreenFull(bool clear_top, bool clear_bottom);
+void ClearScreenF(bool clear_top, bool clear_bottom, int color);
 
 void drawimage(char* data, int posX, int posY,int sizeX, int sizeY);

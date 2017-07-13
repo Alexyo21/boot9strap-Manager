@@ -45,3 +45,6 @@ typedef struct __attribute__((packed))
 
 u32 checkFirmHeader(Firm *firmHeader, u32 firmBufferAddr, bool isPreLockout);
 bool checkSectionHashes(Firm *firm);
+
+void loadFirm(bool isNand, bool bootfirm, u32 index);
+void invokeArm11Function(Arm11Operation op);
