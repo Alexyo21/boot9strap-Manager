@@ -32,11 +32,10 @@
 #define COLOR_BRIGHTBLUE    RGB(0x30, 0x30, 0xFF)
 #define COLOR_GREYGREEN     RGB(0xA0, 0xFF, 0xA0)
 
-extern u8 *top_screen, *bottom_screen;
-#define TOP_SCREEN top_screen
-#define BOT_SCREEN bottom_screen
+#define TOP_SCREEN (u8 *)0x18300000
+#define BOT_SCREEN (u8 *)0x18346500
 
-
+void InitScreen(void);
 
 void DrawStringFColor(int colorfont, int colorbg, int x, int y, bool use_top, const char *format, ...);
 void ClearScreenF(bool clear_top, bool clear_bottom, int color);

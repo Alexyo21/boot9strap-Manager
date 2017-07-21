@@ -51,16 +51,14 @@ void loadFirm(bool isNand, bool bootfirm, u32 index)
 	Firm *firmHeader = (Firm *)0x080A0000;
     u32 maxFirmSize;
 	
+	char firmname[64];
+	
 	if(bootfirm)
-	{
-		char path[125];
-		snprintf(path, 125, "BS9/%s", tab[index]);
-		if(fileRead(firmHeader, path, 0x200, 0) != 0x200) return;	
-		
-	}else{
-		
-		if(fileRead(firmHeader, "boot.firm", 0x200, 0) != 0x200) return;
-	}
+		snprintf(firmname, 64,"BS9/%s", tab[index]);
+	else 
+		snprintf(firmname, 64,"boot.firm");
+	
+	if(fileRead(firmHeader, firmname, 0x200, 0) != 0x200) return;
 	
     bool isPreLockout = ((firmHeader->reserved2[0] & 2) != 0),
          isScreenInit = ((firmHeader->reserved2[0] & 1) != 0);
@@ -86,17 +84,8 @@ void loadFirm(bool isNand, bool bootfirm, u32 index)
 
     if(!calculatedFirmSize) mcuPowerOff();
 	
-	if(bootfirm)
-	{
-		char path[125];
-		snprintf(path, 125, "BS9/%s", tab[index]);
-		fileRead(firm, path, 0, maxFirmSize);
+	if(fileRead(firm, firmname, 0, maxFirmSize) < calculatedFirmSize || !checkSectionHashes(firm)) mcuPowerOff();
 		
-	}else{
-		
-		if(fileRead(firm, "boot.firm", 0, maxFirmSize) < calculatedFirmSize || !checkSectionHashes(firm)) mcuPowerOff();
-		
-    }
 	
 	//screenInit arm11
     if(isScreenInit)

@@ -47,7 +47,6 @@
 #define AES_CCM_DECRYPT_MODE    (0u << 27)
 #define AES_CCM_ENCRYPT_MODE    (1u << 27)
 #define AES_CTR_MODE            (2u << 27)
-#define AES_CTR_MODE            (2u << 27)
 #define AES_CBC_DECRYPT_MODE    (4u << 27)
 #define AES_CBC_ENCRYPT_MODE    (5u << 27)
 #define AES_ECB_DECRYPT_MODE    (6u << 27)
@@ -61,6 +60,9 @@
 #define AES_CNT_OUTPUT_ENDIAN   0x00400000
 #define AES_CNT_FLUSH_READ      0x00000800
 #define AES_CNT_FLUSH_WRITE     0x00000400
+
+#define AES_CNT_CTRNAND_MODE (AES_CTR_MODE | AES_CNT_INPUT_ORDER | AES_CNT_OUTPUT_ORDER | AES_CNT_INPUT_ENDIAN | AES_CNT_OUTPUT_ENDIAN)
+#define AES_CNT_TWLNAND_MODE AES_CTR_MODE
 
 #define AES_INPUT_BE            (AES_CNT_INPUT_ENDIAN)
 #define AES_INPUT_LE            0

@@ -9,6 +9,16 @@
 #include "font.h"
 #include "draw.h"
 
+#include "firm.h"
+#include "i2c.h"
+
+void InitScreen(void)
+{
+	//screenInit arm11
+	invokeArm11Function(INIT_SCREENS);
+	i2cWriteRegister(I2C_DEV_MCU, 0x22, 0x2A);
+}
+
 void DrawCharacter(u8* screen, int character, int x, int y, int color, int bgcolor)
 {
     for (int yy = 0; yy < 8; yy++) {

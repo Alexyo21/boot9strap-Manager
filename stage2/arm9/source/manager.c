@@ -6,7 +6,6 @@
 #include "utils.h"
 #include "firm.h"
 #include "fs.h"
-#include "i2c.h"
 
 #include "fatfs/sdmmc/sdmmc.h"
 #include "fatfs/ff.h"
@@ -16,28 +15,20 @@
 
 //#include "buttonimage.h"
 
-u8 *top_screen, *bottom_screen;
-
 
 //Function Boot9Strap Manager
 void BS9Manager(bool NANDorSD)
 {
-	
-	//screenInit arm11
-	invokeArm11Function(INIT_SCREENS);
-	i2cWriteRegister(I2C_DEV_MCU, 0x22, 0x2A);
-	top_screen = (u8 *)0x18300000;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ;
-	bottom_screen = (u8 *)0x18346500;
-	
-	
+	InitScreen();
 	//menu
 	u32 count = GetDirList("/BS9");//opendir list firm folder "sd:/BS9"
 	u32 index = 0;
+	
 	while (true) 
 	{
 		DrawStringFColor(COLOR_RED, COLOR_BLACK, 200 - ((25 * 8) / 2), 10, true, "Boot9Strap Manager v1.2.2");//Header
 		
-		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 210, true, "Y: Dump SysNand");
+		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 210, true, "Y: Menu Dump/Restore");
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 220, true, "X: Dump Boot9/11 and OTP         ");
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 230, true, "A: Boot Payload");
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 262, 230, true, "Power: Power off");
@@ -74,14 +65,64 @@ void BS9Manager(bool NANDorSD)
 		} else if (pad_state & BUTTON_X) {
 			DumpBoot9_11_OTP(NANDorSD);	
 		} else if (pad_state & BUTTON_Y) {
-			DumpNand();	
+			Menu_Dump_Restore();
 		} else if (pad_state & BUTTON_POWER) {
 			mcuPowerOff();	
-		}
+		} 
 		
 	}
-
 	
+}
+
+u32 Menu_Dump_Restore()
+{
+	u32 count = 3;
+    u32 index = 0;
+	
+	const char *options[3] = {	"DUMP NAND FULL",
+								"RESTORE NAND (full)",
+								"RESTORE NAND (keep hax)"
+	};
+	
+	ClearScreenF(true, true, COLOR_BLACK);
+	
+	while (true) {
+        
+		DrawStringFColor(COLOR_BLUE, COLOR_BLACK, 10,10, true, "Menu Dump/Restore.");
+		DrawStringFColor(COLOR_GREYGREEN, COLOR_BLACK, 10,90, true, "Press <B> to cancel operation.");
+		for (u32 i = 0; i < count; i++) 
+		{
+			if(i != index)
+			{
+				DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 30 + (i*10 + 2), true, "%s", options[i]);
+			}
+			if(i == index)
+			{
+				DrawStringFColor(COLOR_SELECT, COLOR_BLACK, 10, 30 + (i*10 + 2), true, "%s", options[i]);
+			}
+		}
+		u32 pad_state = InputWait();
+        
+		if (pad_state & BUTTON_DOWN) { 
+            index = (index == count - 1) ? 0 : index + 1;	
+		} else if (pad_state & BUTTON_UP) {
+            index = (index > 0) ? index - 1 : count - 1;
+        } else if (pad_state & BUTTON_A) {
+			
+			if(index == 0) DumpNand();
+			if(index == 1) RestoreNand(FULL_NAND);
+			if(index == 2) RestoreNand(KEEP_HAX);
+			
+		} else if (pad_state & BUTTON_B) {
+            DrawStringFColor(COLOR_ORANGE, COLOR_BLACK, 10, 70, true, "(cancelled by user)");
+            break;
+        }
+    }
+	
+	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 90, true, "Press any key to return to manager.");
+	InputWait();
+	ClearScreenF(true, true, COLOR_BLACK);
+    return 0;
 }
 
 void DumpBoot9_11_OTP(bool NANDorSD)
@@ -101,7 +142,6 @@ void DumpBoot9_11_OTP(bool NANDorSD)
 	
 }
 
-
 #define BUFFER_ADDRESS  ((u8*) 0x18000000)
 #define BUFFER_MAX_SIZE ((u32) (1 * 1024 * 1024))
 #define NAND_SECTOR_SIZE 0x200
@@ -118,74 +158,86 @@ u32 DumpNand(void)
 	u32 result = 0;
 	u32 nand_size = getMMCDevice(0)->total_size * NAND_SECTOR_SIZE;
    
-	u32 button;
-	if(DebugOpenFile(path))
+	if(fileOpen(path, FA_READ))
 	{
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 10, true, "The file <%s> exists",path);
 		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 20, true, "Press <A> to replace it");
-		button = InputWait();
+		u32 button = InputWait();
 		
 		if(button & BUTTON_A){
 			if(!ShowUnlockSequence(1))return 1;
 		} else {
 			result = 4;
 		}
+		
 	}
+	
+	
 	
 	if(result == 0)
 	{
-		//open file to write
-		if (f_open(&file, path, FA_READ | FA_WRITE | FA_CREATE_ALWAYS) != 0)
-			return -1;
-		f_lseek(&file, 0);
-		f_sync(&file);
-		
-		
-		sha_init(SHA_256_MODE);
-		u64 n_sectors = nand_size / NAND_SECTOR_SIZE;
-		
-		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 10, true, "Dump %s: %d.MB", path, nand_size / (1024 * 1024));
-		DrawStringFColor(COLOR_GREYGREEN, COLOR_BLACK, 10, 40, true, "Press <B> to cancel operation");
-		
-		for (u64 i = 0; i < n_sectors; i += SECTORS_PER_READ) {
-			
-			u32 read_sectors = min(SECTORS_PER_READ, (n_sectors - i));
-			
-			//progress
-			DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 20, true, "Dump : %3llu%%", (i * 100) / n_sectors);
-			
-			
-			//read sectors nand 1mb
-			if (sdmmc_nand_readsectors(i, read_sectors, buffer) != 0)  {   
-				result = 1;
-				break;
-			}
-			
-			//Write the nand sectors to the file
-			UINT bytes_written = 0;
-			f_lseek(&file, i * NAND_SECTOR_SIZE);
-			if (f_write(&file, buffer, NAND_SECTOR_SIZE * read_sectors, &bytes_written) != 0) { 
-				result = 2;
-				break;
-			}
-			f_sync(&file);
-			sha_update(buffer, NAND_SECTOR_SIZE * read_sectors);
-			
-			
-			if (HID_PAD & BUTTON_B)
+		while(1)
+		{
+			//open file to write
+			if (f_open(&file, path, FA_READ | FA_WRITE | FA_OPEN_ALWAYS) != 0)
 			{
-				DrawStringFColor(COLOR_GREYGREEN, COLOR_BLACK, 10, 60, true, "Press <A> to cancel operation");
-				if (InputWait() & BUTTON_A) {
-					result = 3;
-					break;
-					
-				} else {
-					DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 60, true, "Continuing operation...      ");
-				}
+				result = 5;
+				break;
 			}
+			f_lseek(&file, 0);
+			f_sync(&file);
 			
+			
+			sha_init(SHA_256_MODE);
+			u64 n_sectors = nand_size / NAND_SECTOR_SIZE;
+			
+			DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 10, true, "Dump %s: %d.MB.", path, nand_size / (1024 * 1024));
+			DrawStringFColor(COLOR_GREYGREEN, COLOR_BLACK, 10, 40, true, "Press <B> to cancel operation.");
+			
+			for (u64 i = 0; i < n_sectors; i += SECTORS_PER_READ) {
+				
+				u32 read_sectors = min(SECTORS_PER_READ, (n_sectors - i));
+				
+				//progress
+				DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 20, true, "Dump SysNand: %3llu%%", (i * 100) / n_sectors);
+				
+				
+				//read sectors nand 1mb
+				if (sdmmc_nand_readsectors(i, read_sectors, buffer) != 0)  {   
+					result = 1;
+					f_close(&file);
+					break;
+				}
+				
+				//Write the nand sectors to the file
+				UINT bytes_written = 0;
+				f_lseek(&file, i * NAND_SECTOR_SIZE);
+				if (f_write(&file, buffer, NAND_SECTOR_SIZE * read_sectors, &bytes_written) != 0) { 
+					result = 2;
+					f_close(&file);
+					break;
+				}
+				f_sync(&file);
+				sha_update(buffer, NAND_SECTOR_SIZE * read_sectors);
+				
+				
+				if (HID_PAD & BUTTON_B)
+				{
+					DrawStringFColor(COLOR_GREYGREEN, COLOR_BLACK, 10, 60, true, "Press <A> to cancel operation.");
+					if (InputWait() & BUTTON_A) {
+						result = 3;
+						f_close(&file);
+						break;
+						
+					} else {
+						DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 60, true, "Continuing operation...      ");
+					}
+				}
+				
+			}
+			f_close(&file);
+			break;
 		}
-		f_close(&file);
 	}
 	
 	if (result == 0)
@@ -193,28 +245,161 @@ u32 DumpNand(void)
 		char hashname[64];
         u8 shasum[32];
         sha_get(shasum);
-		DrawStringFColor(COLOR_GREEN, COLOR_BLACK, 10, 70, true, "Dump Nand Succes !");
-		
-        DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 80, true, "NAND dump SHA256: %08X...", getbe32(shasum));
+		DrawStringFColor(COLOR_GREEN, COLOR_BLACK, 10, 20, true, "Dump SysNand: Succes !");
 		
 		snprintf(hashname, 64, "%s.sha", path);
 		u32 ret = fileWrite(shasum, hashname, 32);
-		DrawStringFColor((ret == 0) ? COLOR_RED : COLOR_GREEN, COLOR_BLACK, 10, 90, true, 
-			"Store to %s: %s", hashname, (ret == 0) ? "failed": "ok");
+		
+		DrawStringFColor((ret == 0) ? COLOR_RED : COLOR_GREEN, COLOR_BLACK, 10, 40, true, 
+			"Store to %s: %s", hashname, (ret == 0) ? "failed   ": "ok   ");
+		
+		DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 50, true, "SysNAND dump SHA256: %08X...", getbe32(shasum));
 		
 	}
 	if (result == 1)
-		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "Read sectors nand failed ! !");
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "Read sectors nand failed !");
 	if (result == 2)
-		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "sector write to the file failed  !");
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "sector write to the file failed !");
 	if (result == 3 || result == 4)
 		DrawStringFColor(COLOR_ORANGE, COLOR_BLACK, 10, (result == 3) ? 70 : 40, true, "(cancelled by user)");
+	if (result == 5)
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "Open file <Sysnand.bin> failed !");
 	
-	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 110, true, "Press any key to return to manager");
+	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, (result == 0) ? 70 : 110, true, "Press any key to return to manager.");
 	InputWait();
 	ClearScreenF(true, true, COLOR_BLACK);
     
 	return result;
 }
 
+	// see: http://3dbrew.org/wiki/Flash_Filesystem
+static PartitionInfo partitions[] = {
+    { "TWLN",    {0xE9, 0x00, 0x00, 0x54, 0x57, 0x4C, 0x20, 0x20}, 0x00012E00, 0x08FB5200, 0x3, AES_CNT_TWLNAND_MODE },
+    { "TWLP",    {0xE9, 0x00, 0x00, 0x54, 0x57, 0x4C, 0x20, 0x20}, 0x09011A00, 0x020B6600, 0x3, AES_CNT_TWLNAND_MODE },
+    { "AGBSAVE", {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, 0x0B100000, 0x00030000, 0x7, AES_CNT_CTRNAND_MODE },
+    { "FIRM",    {0x46, 0x49, 0x52, 0x4D, 0x00, 0x00, 0x00, 0x00}, 0x0B130000, 0x00400000, 0x6, AES_CNT_CTRNAND_MODE },
+    { "FIRM",    {0x46, 0x49, 0x52, 0x4D, 0x00, 0x00, 0x00, 0x00}, 0x0B530000, 0x00400000, 0x6, AES_CNT_CTRNAND_MODE },
+    { "CTRNAND", {0xE9, 0x00, 0x00, 0x43, 0x54, 0x52, 0x20, 0x20}, 0x0B95CA00, 0x2F3E3600, 0x4, AES_CNT_CTRNAND_MODE }, // O3DS
+    { "CTRNAND", {0xE9, 0x00, 0x00, 0x43, 0x54, 0x52, 0x20, 0x20}, 0x0B95AE00, 0x41D2D200, 0x5, AES_CNT_CTRNAND_MODE }, // N3DS
+    { "CTRNAND", {0xE9, 0x00, 0x00, 0x43, 0x54, 0x52, 0x20, 0x20}, 0x0B95AE00, 0x41D2D200, 0x4, AES_CNT_CTRNAND_MODE }, // NO3DS
+    { "CTRFULL", {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, 0x0B930000, 0x2F5D0000, 0x4, AES_CNT_CTRNAND_MODE }, // O3DS
+    { "CTRFULL", {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, 0x0B930000, 0x41ED0000, 0x5, AES_CNT_CTRNAND_MODE }  // N3DS
+};
+
+u32 RestoreNand(u32 param)
+{
+	ClearScreenF(true, true, COLOR_BLACK);
+    u8* buffer = BUFFER_ADDRESS;
+    u32 nand_size = getMMCDevice(0)->total_size * NAND_SECTOR_SIZE;
+    u32 result = 0;
 	
+	DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 10, true, "<WARNING RISK BRICK>.");
+	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 30, true, "Press <A> to restore the Sysnand.");
+	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 40, true, "Press <B> to return to manager.");
+	
+	u32 button = InputWait();
+		
+	if(button & BUTTON_A){
+	if(!ShowUnlockSequence(5))result = 3;
+	} else {
+			result = 3;
+	}
+	
+    if(result == 0)
+	{
+		while(1)
+		{
+			if(Open_File("SYSNAND.bin", FA_READ))
+			{
+				DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 10, true, "Restoring SysNAND. Size (MB): %u", nand_size / (1024 * 1024));
+				
+				if (Size_File() != nand_size) {
+					result = 5;
+					Close_File();
+					break;
+				}
+				
+				u32 n_sectors = nand_size / NAND_SECTOR_SIZE;
+				if (!(param & KEEP_HAX)) { // standard, full restore
+					
+					
+					for (u32 i = 0; i < n_sectors; i += SECTORS_PER_READ) {
+						u32 read_sectors = min(SECTORS_PER_READ, (n_sectors - i));
+						
+						//progress
+						DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 20, true, "Restore SysNand : %3llu%%", (i * 100) / n_sectors);
+						
+						if (!Read_File(buffer, NAND_SECTOR_SIZE * read_sectors, i * NAND_SECTOR_SIZE)) {
+							result = 2;
+							Close_File();
+							break;
+						}
+						if (sdmmc_nand_writesectors(i, read_sectors, buffer) != 0) {
+							result = 1;
+							Close_File();
+							break;
+						}
+					}
+				} else { // Hax preserving restore
+					
+					for (u32 section = 0; section < 3; section++) {
+						u32 start_sector, end_sector;
+						if (section == 0) { // NAND header & sectors until 0x96
+							start_sector = 0x00;
+							end_sector = 0x96;
+						} else if (section == 1) { // TWLN, TWLP & AGBSAVE
+							start_sector = partitions[0].offset / NAND_SECTOR_SIZE;
+							end_sector = ((partitions[2].offset + partitions[2].size) - partitions[0].offset) / NAND_SECTOR_SIZE;
+						} else { // CTRNAND (full size) (FIRM skipped)
+							start_sector = 0x0B930000 / NAND_SECTOR_SIZE;
+							end_sector = n_sectors;
+						}
+						
+						for (u32 i = start_sector; i < end_sector; i += SECTORS_PER_READ) {
+							u32 read_sectors = min(SECTORS_PER_READ, (end_sector - i));
+							
+							//progress
+							DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 20, true, "Restore SysNand : %3llu%%", (i * 100) / n_sectors);
+							
+							if (!Read_File(buffer, NAND_SECTOR_SIZE * read_sectors, i * NAND_SECTOR_SIZE)) {
+								result = 2;
+								Close_File();
+								break;
+							}
+							if (sdmmc_nand_writesectors(i, read_sectors, buffer) != 0) {
+								result = 1;
+								Close_File();
+								break;
+							}
+						}
+					}
+				}
+				Close_File();
+				break;
+				
+			} else {
+				result = 4;
+				break;
+			}
+		}
+		
+	}
+	if (result == 0)
+		DrawStringFColor(COLOR_GREEN, COLOR_BLACK, 10, 70, true, "Restore SysNand Succes !");
+	if (result == 1)
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "Write sectors nand failed !");
+	if (result == 2)
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "Read sectors to the file failed !");
+	if (result == 3)
+		DrawStringFColor(COLOR_ORANGE, COLOR_BLACK, 10, 70, true, "(cancelled by user)");
+    if (result == 4)
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "Open file <SYSNAND.bin> failed !");
+	if (result == 5)
+		DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 70, true, "Failed Small NAND backup !");
+		
+	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 110, true, "Press any key to return to manager.");
+	InputWait();
+	ClearScreenF(true, true, COLOR_BLACK);
+    
+	return result;
+}

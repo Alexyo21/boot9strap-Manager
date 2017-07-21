@@ -13,6 +13,7 @@
 //#include "fatfs/fsnand.h"
 
 static FATFS fs;
+static FIL file;
 
 bool mountSd(void)
 {
@@ -29,25 +30,72 @@ bool mountCtrNand(void)
     return f_mount(&fs, "1:", 1) == FR_OK && f_chdrive("1:") == FR_OK;
 }
 
-bool DebugOpenFile(const char *path)
+bool Open_File(const char* path, u32 flag)
 {
-	FIL file;
-    u32 ret = 0;
 	if (*path == '/')
         path++;
-	
-    if(f_open(&file, path, FA_READ) == FR_OK) 
-		ret = 1;
-	
+    if(f_open(&file, path, flag) == FR_OK) 
+		return true;
+	else	
+		return false;
+}
+
+bool Read_File(void* buf, u32 size, u32 foffset)
+{
+	unsigned int bytes_read = 0;
+	f_lseek(&file, foffset);
+	if (f_read(&file, buf, size, &bytes_read) == FR_OK)
+		return (u32)bytes_read;
+	else	
+		return 0;
+}
+
+bool Write_File(const void *buffer, u32 size, u32 foffset)
+{
+	unsigned int bytes_written;
+	f_lseek(&file, foffset);
+	f_write(&file, buffer, size, &bytes_written);
+	f_sync(&file);
+	return (u32)bytes_written == size;
+}
+
+u32 Size_File()
+{
+    return f_size(&file);
+}
+
+void Seek_File(u32 offset)
+{
+    f_lseek(&file, offset);
+}
+
+void Sync_File()
+{
+    f_sync(&file);
+}
+
+void Close_File()
+{
+    f_close(&file);
+}
+
+bool fileOpen(const char* path, u32 flag)
+{
+	u32 ret = false;
+	if (*path == '/')
+        path++;
+    if(f_open(&file, path, flag) == FR_OK) 
+		ret = true;
 	f_close(&file);
-    return ret;
+	return ret;
 }
 
 u32 fileRead(void *dest, const char *path, u32 size, u32 maxSize)
 {
     FIL file;
     u32 ret = 0;
-
+	if (*path == '/')
+        path++;
     if(f_open(&file, path, FA_READ) != FR_OK) return ret;
 
     if(!size) size = f_size(&file);
@@ -58,13 +106,15 @@ u32 fileRead(void *dest, const char *path, u32 size, u32 maxSize)
     return ret;
 }
 
-bool fileWrite(const void *buffer, const char *path, u32 size)
+bool fileWrite(const void *buffer, const char *path,  size_t size)
 {
     FIL file;
-
+	if (*path == '/')
+        path++;
     switch(f_open(&file, path, FA_WRITE | FA_OPEN_ALWAYS))
     {
-        case FR_OK:
+        
+		case FR_OK:
         {
             unsigned int written;
             f_write(&file, buffer, size, &written);
