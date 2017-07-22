@@ -9,9 +9,9 @@ Boot9/Boot11 code execution.
 
 **Exemple folder:**
 
-*Sd:/BS9/luma.firm
-*Sd:/BS9/Decrypt9WIP.firm
-*Sd:/BS9/GodMod9.firm
+* Sd:/BS9/luma.firm
+* Sd:/BS9/Decrypt9WIP.firm
+* Sd:/BS9/GodMod9.firm
 
 ![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/master/image_1.png) ![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/master/image_2.png)
 
