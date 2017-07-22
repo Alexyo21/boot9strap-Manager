@@ -9,7 +9,9 @@ Boot9/Boot11 code execution.
 exemple folder:
 sd:/BS9/luma.firm
 sd:/BS9/Decrypt9WIP.firm
-d:/BS9/GodMod9.firm
+sd:/BS9/GodMod9.firm
+
+![alt tag](http://zupimages.net/viewer.php?id=17/29/g4fb.bmp)
 
 For more details, refer to the presentation [here](https://sciresm.github.io/33-and-a-half-c3/).
 
