@@ -11,7 +11,7 @@ sd:/BS9/luma.firm
 sd:/BS9/Decrypt9WIP.firm
 sd:/BS9/GodMod9.firm
 
-![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/image_1.png)
+![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/master/image_1.png)
 
 For more details, refer to the presentation [here](https://sciresm.github.io/33-and-a-half-c3/).
 
