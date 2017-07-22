@@ -26,6 +26,7 @@ Launches "boot.firm" off of the SD card or CTRNAND. Hold Start + Select + X on b
 [Normmatt](https://github.com/Normmatt): Theorizing the NDMA overwite exploit.    
 [TuxSH](https://github.com/TuxSH): Help implementing bootrom payloads.    
 [Luma3DS](https://github.com/AuroraWright/Luma3DS): Codebase used in the stage 2 FIRM loader.    
+[d0k3](https://github.com/d0k3/Decrypt9WIP): for code source Decrypt9WIP
 
 **Licensing:**
 
