@@ -7,6 +7,12 @@
 #define FULL_NAND	(1<<0)
 #define KEEP_HAX	(1<<1)
 
+#define BUFFER_ADDRESS  ((u8*) 0x18000000)
+#define BUFFER_MAX_SIZE ((u32) (1 * 1024 * 1024))
+#define NAND_SECTOR_SIZE 0x200
+#define SECTORS_PER_READ (BUFFER_MAX_SIZE / NAND_SECTOR_SIZE)
+
+
 typedef struct {
     char name[16];
     u8  magic[8];

@@ -25,7 +25,7 @@ u32 fileRead(void *dest, const char *path, u32 size, u32 maxSize);
 bool fileWrite(const void *buffer, const char *path, size_t size);
 bool fileDelete(const char *path);
 
-char tab[50][32];
+char tab[50][64];
 u32 countnamefirm[50];
 u32 GetDirList(char* path);
 

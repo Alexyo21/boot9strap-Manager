@@ -5,7 +5,7 @@ fork Boot9strap v1.2
 Boot9/Boot11 code execution.
 
 
-**L1 + Power for Boot9Strap Manager v1.2.1**
+**L1 + Power for Boot9Strap Manager**
 
 **Exemple folder:**
 
@@ -13,7 +13,7 @@ Boot9/Boot11 code execution.
 * Sd:/BS9/Decrypt9WIP.firm
 * Sd:/BS9/GodMod9.firm
 
-![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/master/image_1.png) ![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/master/image_2.png)
+![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/master/image_1.bmp) ![alt tag](https://github.com/kasai07/boot9strap-Manager/blob/master/image_2.png)
 
 For more details, refer to the presentation [here](https://sciresm.github.io/33-and-a-half-c3/).
 

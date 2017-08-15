@@ -13,6 +13,8 @@
 
 #define RGB(r,g,b) (r<<24|b<<16|g<<8|r)
 
+#define BG        RGB(0xE4, 0xE4, 0xE4)
+
 
 #define COLOR_SELECT        RGB(0xD7, 0x9A, 0x28)
 #define COLOR_BLACK         RGB(0x00, 0x00, 0x00)
@@ -22,7 +24,7 @@
 #define COLOR_BLUE          RGB(0xFF, 0x00, 0xFF)
 #define COLOR_GREY          RGB(0x77, 0x77, 0x77)
 #define COLOR_PURPLE        RGB(0x66, 0x00, 0xFF)
-#define COLOR_TRANSPARENT   RGB(0xFF, 0x00, 0xEF) // otherwise known as 'super fuchsia'
+#define COLOR_TRANSPARENT   RGB(0xFF, 0x00, 0xEF) // otherwise known as 'super fuchsia' (r,255)(g,0)(b,239)
 #define COLOR_ORANGE        RGB(0xFF, 0xA5, 0x00)
 
 #define COLOR_BRIGHTRED     RGB(0xFF, 0x30, 0x30)
@@ -41,3 +43,6 @@ void DrawStringFColor(int colorfont, int colorbg, int x, int y, bool use_top, co
 void ClearScreenF(bool clear_top, bool clear_bottom, int color);
 
 void drawimage(char* data, int posX, int posY,int sizeX, int sizeY);
+
+void Screenshot();
+

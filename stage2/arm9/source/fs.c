@@ -3,14 +3,12 @@
 */
 #include <stdio.h>
 #include <string.h>
-//#include "fatfs/fsutil.h"
 
 #include "fs.h"
 #include "hid.h"
 #include "utils.h"
 #include "fatfs/ff.h"
 #include "draw.h"
-//#include "fatfs/fsnand.h"
 
 static FATFS fs;
 static FIL file;
@@ -34,20 +32,25 @@ bool Open_File(const char* path, u32 flag)
 {
 	if (*path == '/')
         path++;
-    if(f_open(&file, path, flag) == FR_OK) 
+    if(f_open(&file, path, flag) == FR_OK) {
+		
+		f_lseek(&file, 0);
+		f_sync(&file);
 		return true;
-	else	
-		return false;
+		
+	} else	return false;
 }
 
 bool Read_File(void* buf, u32 size, u32 foffset)
 {
+	if(!size) size = f_size(&file);
 	unsigned int bytes_read = 0;
+	
 	f_lseek(&file, foffset);
 	if (f_read(&file, buf, size, &bytes_read) == FR_OK)
 		return (u32)bytes_read;
-	else	
-		return 0;
+	
+	else return false;
 }
 
 bool Write_File(const void *buffer, u32 size, u32 foffset)
@@ -160,7 +163,7 @@ u32 GetDirList(char* path)
 		if (fno.fname[0] == 0) break;
 		if ((fno.fname[0] != '.') && !(fno.fattrib & AM_DIR))
 		{
-			memcpy(tab[count], fno.fname, 32);
+			memcpy(tab[count], fno.fname, 64);
 			
 			int i = 0;
 			while (fno.fname[i] !='\0')
