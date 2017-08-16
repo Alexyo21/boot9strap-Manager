@@ -198,10 +198,17 @@ void BS9Manager(bool NANDorSD)
 		} else if (pad_state & BUTTON_POWER) {
 			mcuPowerOff();	
 		} else if (pad_state & BUTTON_R1) {
-			Screenshot();
+			page = (page == c_page) ? 0 : page + 1;
+			
+			if(page == 0)pos=0;
+			if(page == 1)pos=10;
+			if(page == 2)pos=20;
+			if(page == 3)pos=30;
+			
+			refresh_page = true;
 		} else if (pad_state & BUTTON_L1) {
 			
-			page = (page == c_page) ? 0 : page + 1;
+			page = (page == 0) ? c_page : page - 1;
 			
 			if(page == 0)pos=0;
 			if(page == 1)pos=10;
