@@ -174,6 +174,7 @@ void BS9Manager(bool NANDorSD)
 		
 		
 		DrawStringFColor(COLOR_RED, COLOR_TRANSPARENT, 200 - ((18 * 8) / 2), 10, true, "Boot9Strap Manager");
+		if(c_page > 0)DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 30, 80, true, "P - %d", page);
 		
 		u32 pad_state = InputWait();
 			
