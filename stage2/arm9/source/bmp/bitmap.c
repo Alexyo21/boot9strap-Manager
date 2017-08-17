@@ -121,7 +121,7 @@ void Draw_BMP(BMP_Header* header, u32 screen, int pos_width, int pos_height)
 			}
 			
 		}
-		
+		//multiple 4
 		if(	header->width == 1 || 
 			header->width == 5 || 
 			header->width == 9 || 
@@ -172,7 +172,56 @@ void Draw_BMP(BMP_Header* header, u32 screen, int pos_width, int pos_height)
 			header->width == 189 || 
 			header->width == 193 || 
 			header->width == 197 || 
-			header->width == 201)dir++;
+			header->width == 201 || 
+			header->width == 205 || 
+			header->width == 209 || 
+			header->width == 213 || 
+			header->width == 217 || 
+			header->width == 221 || 
+			header->width == 225 || 
+			header->width == 229 || 
+			header->width == 233 || 
+			header->width == 237 || 
+			header->width == 241 || 
+			header->width == 245 || 
+			header->width == 249 || 
+			header->width == 253 || 
+			header->width == 257 || 
+			header->width == 261 || 
+			header->width == 265 || 
+			header->width == 269 || 
+			header->width == 273 || 
+			header->width == 277 || 
+			header->width == 281 || 
+			header->width == 285 || 
+			header->width == 289 || 
+			header->width == 293 || 
+			header->width == 297 || 
+			header->width == 301 || 
+			header->width == 305 || 
+			header->width == 309 || 
+			header->width == 313 || 
+			header->width == 317 || 
+			header->width == 321 || 
+			header->width == 325 || 
+			header->width == 329 || 
+			header->width == 333 || 
+			header->width == 337 || 
+			header->width == 341 || 
+			header->width == 345 || 
+			header->width == 349 || 
+			header->width == 353 || 
+			header->width == 357 || 
+			header->width == 361 || 
+			header->width == 365 || 
+			header->width == 369 || 
+			header->width == 373 || 
+			header->width == 377 || 
+			header->width == 381 || 
+			header->width == 385 || 
+			header->width == 389 || 
+			header->width == 393 || 
+			header->width == 397)dir++;
 		
 		if(	header->width == 2 || 
 			header->width == 6 || 
@@ -224,7 +273,55 @@ void Draw_BMP(BMP_Header* header, u32 screen, int pos_width, int pos_height)
 			header->width == 190 || 
 			header->width == 194 || 
 			header->width == 198 || 
-			header->width == 202)dir+=2;
+			header->width == 202 || 
+			header->width == 206 || 
+			header->width == 210 || 
+			header->width == 214 || 
+			header->width == 218 || 
+			header->width == 222 || 
+			header->width == 226 || 
+			header->width == 230 || 
+			header->width == 234 || 
+			header->width == 238 || 
+			header->width == 242 || 
+			header->width == 246 || 
+			header->width == 250 || 
+			header->width == 254 || 
+			header->width == 258 || 
+			header->width == 262 || 
+			header->width == 266 || 
+			header->width == 270 || 
+			header->width == 274 || 
+			header->width == 278 || 
+			header->width == 282 || 
+			header->width == 286 || 
+			header->width == 290 || 
+			header->width == 294 || 
+			header->width == 298 || 
+			header->width == 306 || 
+			header->width == 310 || 
+			header->width == 314 || 
+			header->width == 318 || 
+			header->width == 322 || 
+			header->width == 326 || 
+			header->width == 330 || 
+			header->width == 334 || 
+			header->width == 338 || 
+			header->width == 342 || 
+			header->width == 346 || 
+			header->width == 350 || 
+			header->width == 354 || 
+			header->width == 358 || 
+			header->width == 362 || 
+			header->width == 366 || 
+			header->width == 370 || 
+			header->width == 374 || 
+			header->width == 378 || 
+			header->width == 382 || 
+			header->width == 386 || 
+			header->width == 390 || 
+			header->width == 394 || 
+			header->width == 398)dir+=2;
 		
 		if(	header->width == 3 || 
 			header->width == 7 || 
@@ -276,8 +373,57 @@ void Draw_BMP(BMP_Header* header, u32 screen, int pos_width, int pos_height)
 			header->width == 191 || 
 			header->width == 195 || 
 			header->width == 199 || 
-			header->width == 203)dir+=3;
-	}
+			header->width == 203 || 
+			header->width == 207 || 
+			header->width == 211 || 
+			header->width == 215 || 
+			header->width == 219 || 
+			header->width == 223 || 
+			header->width == 227 || 
+			header->width == 231 || 
+			header->width == 235 || 
+			header->width == 239 || 
+			header->width == 243 || 
+			header->width == 247 || 
+			header->width == 251 || 
+			header->width == 255 || 
+			header->width == 259 || 
+			header->width == 263 || 
+			header->width == 267 || 
+			header->width == 271 || 
+			header->width == 275 || 
+			header->width == 279 || 
+			header->width == 283 || 
+			header->width == 287 || 
+			header->width == 291 || 
+			header->width == 295 || 
+			header->width == 299 || 
+			header->width == 303 || 
+			header->width == 307 || 
+			header->width == 311 || 
+			header->width == 315 || 
+			header->width == 319 || 
+			header->width == 323 || 
+			header->width == 327 || 
+			header->width == 331 || 
+			header->width == 335 || 
+			header->width == 339 || 
+			header->width == 343 || 
+			header->width == 347 || 
+			header->width == 351 || 
+			header->width == 355 || 
+			header->width == 359 || 
+			header->width == 363 || 
+			header->width == 367 || 
+			header->width == 371 || 
+			header->width == 375 || 
+			header->width == 379 || 
+			header->width == 383 || 
+			header->width == 387 || 
+			header->width == 391 || 
+			header->width == 395 || 
+			header->width == 399)dir+=3;
+	
 	
 	
 }
