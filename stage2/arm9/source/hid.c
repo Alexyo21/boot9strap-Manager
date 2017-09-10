@@ -32,8 +32,8 @@ u32 InputWait() {
 		
 		//Make sure the key is pressed
         u32 t_pressed = 0;
-        for(; (t_pressed < 0x13000) && (pad_state == HID_STATE); t_pressed++);
+        for( ; (t_pressed < 0x13000) && (pad_state == HID_STATE); t_pressed++);
 		
-		if (t_pressed >= 0x13000)return ~pad_state + 0x00001000;
+		if(t_pressed >= 0x13000)return ~pad_state + 0x00001000;
 	}
 }

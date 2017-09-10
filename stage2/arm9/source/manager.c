@@ -21,10 +21,8 @@ void BS9Manager(bool NANDorSD)
 {
 	
 	InitScreen();
-	ClearScreenF(true, false, COLOR_BLACK);
 	
-	
-	BMP_Header* bmp = (BMP_Header*)0x18100000;
+	BMP_Data* bmp = (BMP_Data*)0x18100000;
 	u32 no_bmp = 0;
 	
 	//opendir list firm folder "sd:/BS9"
@@ -46,8 +44,13 @@ void BS9Manager(bool NANDorSD)
 	if(count < 10)c_page = 0;
 	
 	//mount memory bmp image
+	//screen TOP
 	if(Read_BMP(&bmp[BMP_BG_TOP], "/img/bg_top.bmp") != 0)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
-	if(Read_BMP(&bmp[BMP_BG_BOT], "/img/bg_bot.bmp") != 0)no_bmp |= NO_BG_BOT;
+	if(bmp[BMP_BG_TOP].height > 240 || bmp[BMP_BG_TOP].width > 400)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
+	//screen BOT
+	if(Read_BMP(&bmp[BMP_BG_BOT], "/img/bg_bot.bmp") != 0)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
+	if(bmp[BMP_BG_BOT].height > 240 || bmp[BMP_BG_BOT].width > 320)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
+	
 	if(Read_BMP(&bmp[BMP_CURSER_L], "/img/curser_L.bmp") != 0)no_bmp |= NO_CURSER_L;
 	if(Read_BMP(&bmp[BMP_CURSER_R], "/img/curser_R.bmp") != 0)no_bmp |= NO_CURSER_R;
 	if(Read_BMP(&bmp[BMP_BUTTON_A], "/img/button_A.bmp") != 0)no_bmp |= NO_BUTTON_A;
@@ -198,6 +201,7 @@ void BS9Manager(bool NANDorSD)
 		} else if (pad_state & BUTTON_POWER) {
 			mcuPowerOff();	
 		} else if (pad_state & BUTTON_R1) {
+			
 			page = (page == c_page) ? 0 : page + 1;
 			
 			if(page == 0)pos=0;
@@ -208,7 +212,7 @@ void BS9Manager(bool NANDorSD)
 			refresh_page = true;
 		} else if (pad_state & BUTTON_L1) {
 			
-			page = (page == 0) ? c_page : page - 1;
+			page = (page == 0) ? c_page : page + 1;
 			
 			if(page == 0)pos=0;
 			if(page == 1)pos=10;
@@ -264,9 +268,7 @@ u32 Menu_Dump_Restore()
 		} else if (pad_state & BUTTON_B) {
             DrawStringFColor(COLOR_ORANGE, COLOR_BLACK, 10, 70, true, "(cancelled by user)");
             break;
-        }else if (pad_state & BUTTON_R1) {
-			Screenshot();	
-		}
+        }
     }
 	
 	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 90, true, "Press any key to return to manager.");
@@ -475,10 +477,10 @@ u32 RestoreNand(u32 param)
 				
 			}
 			
-		}else result = 3;
+		}else result = 6;
 		
 	} else if(button & BUTTON_B) {
-		result = 6;
+		result = 3;
 	}
 	
 	
@@ -528,8 +530,12 @@ u32 RestoreNand(u32 param)
 							start_sector = 0x00;
 							end_sector = 0x96;
 						} else if (section == 1) { // TWLN, TWLP & AGBSAVE
+							
+							//start_sector = 0x00012E00 / NAND_SECTOR_SIZE;
 							start_sector = partitions[0].offset / NAND_SECTOR_SIZE;
+							//end_sector = (0x0B930000 - 0x00012E00) / NAND_SECTOR_SIZE;
 							end_sector = ((partitions[2].offset + partitions[2].size) - partitions[0].offset) / NAND_SECTOR_SIZE;
+							
 						} else { // CTRNAND (full size) (FIRM skipped)
 							start_sector = 0x0B930000 / NAND_SECTOR_SIZE;
 							end_sector = n_sectors;

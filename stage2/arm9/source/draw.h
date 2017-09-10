@@ -13,7 +13,6 @@
 
 #define RGB(r,g,b) (r<<24|b<<16|g<<8|r)
 
-#define BG        RGB(0xE4, 0xE4, 0xE4)
 
 
 #define COLOR_SELECT        RGB(0xD7, 0x9A, 0x28)
@@ -41,8 +40,4 @@ void InitScreen(void);
 
 void DrawStringFColor(int colorfont, int colorbg, int x, int y, bool use_top, const char *format, ...);
 void ClearScreenF(bool clear_top, bool clear_bottom, int color);
-
-void drawimage(char* data, int posX, int posY,int sizeX, int sizeY);
-
-void Screenshot();
 

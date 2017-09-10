@@ -2,7 +2,6 @@
 *   main.c
 */
 
-#include "types.h"
 #include "crypto/crypto.h"
 #include "manager.h"
 #include "firm.h"
