@@ -26,7 +26,7 @@ void BS9Manager(bool NANDorSD)
 	u32 no_bmp = 0;
 	
 	//opendir list firm folder "sd:/BS9"
-	u32 count = GetDirList("/BS9");
+	u32 count = GetDirList("/luma/payloads");
 	
 	
 	u32 index = 0;
@@ -45,19 +45,19 @@ void BS9Manager(bool NANDorSD)
 	
 	//mount memory bmp image
 	//screen TOP
-	if(Read_BMP(&bmp[BMP_BG_TOP], "/img/bg_top.bmp") != 0)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
+	if(Read_BMP(&bmp[BMP_BG_TOP], "/boot9strap/img/bg_top.bmp") != 0)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
 	if(bmp[BMP_BG_TOP].height > 240 || bmp[BMP_BG_TOP].width > 400)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
 	//screen BOT
-	if(Read_BMP(&bmp[BMP_BG_BOT], "/img/bg_bot.bmp") != 0)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
+	if(Read_BMP(&bmp[BMP_BG_BOT], "/boot9strap/img/bg_bot.bmp") != 0)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
 	if(bmp[BMP_BG_BOT].height > 240 || bmp[BMP_BG_BOT].width > 320)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
 	
-	if(Read_BMP(&bmp[BMP_CURSER_L], "/img/curser_L.bmp") != 0)no_bmp |= NO_CURSER_L;
-	if(Read_BMP(&bmp[BMP_CURSER_R], "/img/curser_R.bmp") != 0)no_bmp |= NO_CURSER_R;
-	if(Read_BMP(&bmp[BMP_BUTTON_A], "/img/button_A.bmp") != 0)no_bmp |= NO_BUTTON_A;
-	if(Read_BMP(&bmp[BMP_BUTTON_B], "/img/button_B.bmp") != 0)no_bmp |= NO_BUTTON_B;
-	if(Read_BMP(&bmp[BMP_BUTTON_X], "/img/button_X.bmp") != 0)no_bmp |= NO_BUTTON_X;
-	if(Read_BMP(&bmp[BMP_BUTTON_Y], "/img/button_Y.bmp") != 0)no_bmp |= NO_BUTTON_Y;
-	if(Read_BMP(&bmp[BMP_BUTTON_DIR], "/img/button_D.bmp") != 0)no_bmp |= NO_BUTTON_DIR;
+	if(Read_BMP(&bmp[BMP_CURSER_L], "/boot9strap/img/curser_L.bmp") != 0)no_bmp |= NO_CURSER_L;
+	if(Read_BMP(&bmp[BMP_CURSER_R], "/boot9strap/img/curser_R.bmp") != 0)no_bmp |= NO_CURSER_R;
+	if(Read_BMP(&bmp[BMP_BUTTON_A], "/boot9strap/img/button_A.bmp") != 0)no_bmp |= NO_BUTTON_A;
+	if(Read_BMP(&bmp[BMP_BUTTON_B], "/boot9strap/img/button_B.bmp") != 0)no_bmp |= NO_BUTTON_B;
+	if(Read_BMP(&bmp[BMP_BUTTON_X], "/boot9strap/img/button_X.bmp") != 0)no_bmp |= NO_BUTTON_X;
+	if(Read_BMP(&bmp[BMP_BUTTON_Y], "/boot9strap/img/button_Y.bmp") != 0)no_bmp |= NO_BUTTON_Y;
+	if(Read_BMP(&bmp[BMP_BUTTON_DIR], "/boot9strap/img/button_D.bmp") != 0)no_bmp |= NO_BUTTON_DIR;
 	
 	
 	

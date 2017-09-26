@@ -12,8 +12,11 @@
 void main(void)
 {
     setupKeyslots();
-
-    if(mountSd())
+	
+	mountSd();
+	BS9Manager(false);
+    /*
+	if(mountSd())
     {
 		if(HID_PAD & BUTTON_L1)BS9Manager(false);
         loadFirm(false, false, 0);
@@ -26,6 +29,6 @@ void main(void)
 		if(HID_PAD & BUTTON_L1)BS9Manager(true);
         loadFirm(true, false, 0);
     }
-
+	*/
     mcuPowerOff();
 }
