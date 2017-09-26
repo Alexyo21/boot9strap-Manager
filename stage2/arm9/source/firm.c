@@ -54,7 +54,7 @@ void loadFirm(bool isNand, bool bootfirm, u32 index)
 	char firmname[64];
 	
 	if(bootfirm)
-		snprintf(firmname, 64,"luma/payload/%s", tab[index]);
+		snprintf(firmname, 64,"luma/payloads/%s", tab[index]);
 	else 
 		snprintf(firmname, 64,"boot.firm");
 	
