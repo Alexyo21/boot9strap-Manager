@@ -9,6 +9,8 @@
 #include "hid.h"
 #include "fs.h"
 
+#ifndef NTRBOOTHAX
+//Boot9strap Mod Manager
 void main(void)
 {
     setupKeyslots();
@@ -29,3 +31,18 @@ void main(void)
 	
     mcuPowerOff();
 }
+
+#else
+
+//ntrboohax
+void main(void)
+{
+    setupKeyslots();
+
+	mountSd();
+    BS9Manager(false);
+    mcuPowerOff();
+}
+#endif
+
+
