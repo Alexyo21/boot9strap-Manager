@@ -4,6 +4,10 @@ fork Boot9strap v1.3
 
 Boot9/Boot11 code execution.
 
+#### Special `make` options
+* `NTRBOOTHAX=1`
+  - NTRBootHax for NTRBootFlasher
+
 
 **L1 + Power for Boot9Strap Manager**
 
