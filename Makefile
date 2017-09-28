@@ -30,6 +30,9 @@ boot9strap: build_boot9strap_firm.py boot9strap.s $(dir_arm9_stage2)/out/arm9.bi
 	@python $^
 
 $(dir_arm9_stage2)/out/arm9.bin: $(dir_arm9_stage2)
+	rm -rf $(dir_arm9_stage2)/build/main.d main.o
+	rm -rf $(dir_arm9_stage2)/build/main.o
+	rm -rf $(dir_arm9_stage2)/out
 	@$(MAKE) -C $<
 
 $(dir_arm11_stage2)/out/arm11.bin: $(dir_arm11_stage2)
