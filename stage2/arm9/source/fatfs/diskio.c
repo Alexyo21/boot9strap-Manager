@@ -41,8 +41,8 @@ DSTATUS disk_initialize (
 
         if(sdmmcInitResult == 4) sdmmcInitResult = sdmmc_sdcard_init();
 
-	return ((pdrv == SDCARD && !(sdmmcInitResult & 2)) ||
-                (pdrv == CTRNAND && !(sdmmcInitResult & 1) && !ctrNandInit())) ? 0 : STA_NOINIT;
+    return ((pdrv == SDCARD && !(sdmmcInitResult & 2)) ||
+            (pdrv == CTRNAND && !(sdmmcInitResult & 1) && !ctrNandInit())) ? 0 : STA_NOINIT;
 }
 
 
@@ -61,8 +61,8 @@ DRESULT disk_read (
 	UINT count		/* Number of sectors to read */
 )
 {
-        return ((pdrv == SDCARD && !sdmmc_sdcard_readsectors(sector, count, buff)) ||
-                (pdrv == CTRNAND && !ctrNandRead(sector, count, buff))) ? RES_OK : RES_PARERR;
+    return ((pdrv == SDCARD && !sdmmc_sdcard_readsectors(sector, count, buff)) ||
+            (pdrv == CTRNAND && !ctrNandRead(sector, count, buff))) ? RES_OK : RES_PARERR;
 }
 
 
@@ -83,7 +83,7 @@ DRESULT disk_write (
 	UINT count			/* Number of sectors to write */
 )
 {
-        return (pdrv == SDCARD && !sdmmc_sdcard_writesectors(sector, count, buff)) ? RES_OK : RES_PARERR;
+    return (pdrv == SDCARD && (*(vu16 *)(SDMMC_BASE + REG_SDSTATUS0) & TMIO_STAT0_WRPROTECT) != 0 && !sdmmc_sdcard_writesectors(sector, count, buff)) ? RES_OK : RES_PARERR;
 }
 #endif
 
@@ -103,20 +103,6 @@ DRESULT disk_ioctl (
 	void *buff		/* Buffer to send/receive control data */
 )
 {
-    switch (cmd) {
-        case GET_SECTOR_SIZE:
-            *((DWORD*) buff) = 0x200;
-            return RES_OK;
-        case GET_SECTOR_COUNT:
-            *((DWORD*) buff) = getMMCDevice(1)->total_size;
-            return RES_OK;
-        case GET_BLOCK_SIZE:
-            *((DWORD*) buff) = 0x2000;
-            return RES_OK;
-        case CTRL_SYNC:
-            // nothing to do here - the disk_write function handles that
-            return RES_OK;
-    }
-	return RES_PARERR;
+    return cmd == CTRL_SYNC ? RES_OK : RES_PARERR;
 }
 #endif

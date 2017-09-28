@@ -95,6 +95,7 @@ bool fileOpen(const char* path, u32 flag)
 u32 fileRead(void *dest, const char *path, u32 size, u32 maxSize)
 {
     FIL file;
+	FRESULT result = FR_OK;
     u32 ret = 0;
 	if (*path == '/')
         path++;
@@ -102,10 +103,11 @@ u32 fileRead(void *dest, const char *path, u32 size, u32 maxSize)
 
     if(!size) size = f_size(&file);
     if(!maxSize || size <= maxSize)
-        f_read(&file, dest, size, (unsigned int *)&ret);
-    f_close(&file);
+	
+    result = f_read(&file, dest, size, (unsigned int *)&ret);
+     result |= f_close(&file);
 
-    return ret;
+    return result == FR_OK ? ret : 0;
 }
 
 bool fileWrite(const void *buffer, const char *path,  size_t size)

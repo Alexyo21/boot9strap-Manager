@@ -26,30 +26,19 @@ void BS9Manager(bool NANDorSD)
 	u32 no_bmp = 0;
 	
 	//opendir list firm folder "sd:/BS9"
+	
 	u32 count = GetDirList("/luma/payloads");
-	
-	
 	u32 index = 0;
-	u32 pos = 0;
 	
-	bool refresh_page = false;
 	bool refresh_b9sm = true;
-	
-	//count mumber Page
-	u32 page = 0;
-	u32 c_page = 0;
-	if(count < 40)c_page = 3;
-	if(count < 30)c_page = 2;
-	if(count < 20)c_page = 1;
-	if(count < 10)c_page = 0;
 	
 	//mount memory bmp image
 	//screen TOP
 	if(Read_BMP(&bmp[BMP_BG_TOP], "/boot9strap/img/bg_top.bmp") != 0)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
-	if(bmp[BMP_BG_TOP].height > 240 || bmp[BMP_BG_TOP].width > 400)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
+	if(bmp[BMP_BG_TOP].height > 240 && bmp[BMP_BG_TOP].width > 400)no_bmp |= NO_BG_TOP|NO_CURSER_L|NO_CURSER_R;
 	//screen BOT
 	if(Read_BMP(&bmp[BMP_BG_BOT], "/boot9strap/img/bg_bot.bmp") != 0)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
-	if(bmp[BMP_BG_BOT].height > 240 || bmp[BMP_BG_BOT].width > 320)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
+	if(bmp[BMP_BG_BOT].height > 240 && bmp[BMP_BG_BOT].width > 320)no_bmp |= NO_BG_BOT|NO_BUTTON_A|NO_BUTTON_B|NO_BUTTON_X|NO_BUTTON_Y|NO_BUTTON_DIR;
 	
 	if(Read_BMP(&bmp[BMP_CURSER_L], "/boot9strap/img/curser_L.bmp") != 0)no_bmp |= NO_CURSER_L;
 	if(Read_BMP(&bmp[BMP_CURSER_R], "/boot9strap/img/curser_R.bmp") != 0)no_bmp |= NO_CURSER_R;
@@ -101,65 +90,35 @@ void BS9Manager(bool NANDorSD)
 			refresh_b9sm = false;
 		}
 		
-		if(refresh_page)
-		{
-			for (u32 i = 0; i < 10; i++) 
-			{
-				
-				//delete name payload
-				bmp[BMP_BG_TOP].height =  8;
-				bmp[BMP_BG_TOP].width = countnamefirm[pos-10+i] * 8;
-				if(!(no_bmp & NO_BG_TOP))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, 200 - ((countnamefirm[pos-10+i] * 8) / 2), 50 + (i*15+2));
-				bmp[BMP_BG_TOP].width = countnamefirm[pos+10+i] * 8;
-				if(!(no_bmp & NO_BG_TOP))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, 200 - ((countnamefirm[pos+10+i] * 8) / 2), 50 + (i*15+2));
-				
-				
-			}
-			
-			//delete position curseur
-			//curser LEFT - GAUCHE
-			bmp[BMP_BG_TOP].width = bmp[BMP_CURSER_L].width;
-			bmp[BMP_BG_TOP].height = bmp[BMP_CURSER_L].height;
-			if(!(no_bmp & NO_CURSER_L))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, (200 - ((countnamefirm[pos-10+index] * 8) / 2))-(bmp[BMP_CURSER_L].width + 10), (50 + (index*15+2))-(bmp[BMP_CURSER_L].height / 2));
-			if(!(no_bmp & NO_CURSER_L))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, (200 - ((countnamefirm[pos+10+index] * 8) / 2))-(bmp[BMP_CURSER_L].width + 10), (50 + (index*15+2))-(bmp[BMP_CURSER_L].height / 2));
-			
-			//curser RIGHT - DROITE
-			bmp[BMP_BG_TOP].width = bmp[BMP_CURSER_R].width;
-			bmp[BMP_BG_TOP].height = bmp[BMP_CURSER_R].height;
-			if(!(no_bmp & NO_CURSER_R))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, 200 + ((countnamefirm[pos-10+index] * 8) / 2)+10, (50 + (index*15+2))-(bmp[BMP_CURSER_R].height / 2));
-			if(!(no_bmp & NO_CURSER_R))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, 200 + ((countnamefirm[pos+10+index] * 8) / 2)+10, (50 + (index*15+2))-(bmp[BMP_CURSER_R].height / 2));
-			
-			refresh_page = false;
-			index = 0;
-		}
 		
-		for (u32 i = 0; i < 10; i++) 
+		
+		for (u32 i = 0; i < count; i++) 
 		{
 			//delete position curseur
 			//curser LEFT - GAUCHE
 			bmp[BMP_BG_TOP].width = bmp[BMP_CURSER_L].width;
 			bmp[BMP_BG_TOP].height = bmp[BMP_CURSER_L].height;
-			if(!(no_bmp & NO_CURSER_L))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, (200 - ((countnamefirm[i+pos] * 8) / 2))-(bmp[BMP_CURSER_L].width + 10), (50 + (i*15+2))-(bmp[BMP_CURSER_L].height / 2));
+			if(!(no_bmp & NO_CURSER_L))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, (200 - ((countnamefirm[i] * 8) / 2))-(bmp[BMP_CURSER_L].width + 10), (50 + (i*15+2))-(bmp[BMP_CURSER_L].height / 2));
 			//curser RIGHT - DROITE
 			bmp[BMP_BG_TOP].width = bmp[BMP_CURSER_R].width;
 			bmp[BMP_BG_TOP].height = bmp[BMP_CURSER_R].height;
-			if(!(no_bmp & NO_CURSER_R))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, 200 + ((countnamefirm[i+pos] * 8) / 2)+10, (50 + (i*15+2))-(bmp[BMP_CURSER_R].height / 2));
+			if(!(no_bmp & NO_CURSER_R))Draw_BMP(&bmp[BMP_BG_TOP], DELETE_TOP, 200 + ((countnamefirm[i] * 8) / 2)+10, (50 + (i*15+2))-(bmp[BMP_CURSER_R].height / 2));
 			
 		}
 		
-		for (u32 i = 0; i < 10; i++) 
+		for (u32 i = 0; i < count; i++) 
 		{
 			
-			if(i+pos != index+pos)
+			if(i!=index)
 			{
-				DrawStringFColor(COLOR_BLACK, COLOR_TRANSPARENT, 200 - ((countnamefirm[i+pos] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i+pos]);	
-				if(no_bmp & NO_BG_TOP)DrawStringFColor(COLOR_WHITE, COLOR_TRANSPARENT, 200 - ((countnamefirm[i+pos] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i+pos]);
+				DrawStringFColor(COLOR_BLACK, COLOR_TRANSPARENT, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i]);	
+				if(no_bmp & NO_BG_TOP)DrawStringFColor(COLOR_WHITE, COLOR_TRANSPARENT, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i]);
 			}
 			
-			if(i+pos == index+pos)
+			if(i==index)
 			{
-				DrawStringFColor(COLOR_SELECT, COLOR_TRANSPARENT, 200 - ((countnamefirm[i+pos] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i+pos]);
-				if(no_bmp & NO_BG_TOP)DrawStringFColor(COLOR_SELECT, COLOR_TRANSPARENT, 200 - ((countnamefirm[i+pos] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i+pos]);
+				DrawStringFColor(COLOR_SELECT, COLOR_TRANSPARENT, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i]);
+				if(no_bmp & NO_BG_TOP)DrawStringFColor(COLOR_SELECT, COLOR_TRANSPARENT, 200 - ((countnamefirm[i] * 8) / 2), 50 + (i*15 + 2), true, "%s", tab[i]);
 			}
 			
 		}
@@ -169,29 +128,28 @@ void BS9Manager(bool NANDorSD)
 		//curser LEFT - GAUCHE
 		bmp[BMP_BG_TOP].width = bmp[BMP_CURSER_L].width;
 		bmp[BMP_BG_TOP].height = bmp[BMP_CURSER_L].height;
-		if(!(no_bmp & NO_CURSER_L))Draw_BMP(&bmp[BMP_CURSER_L], TOP, (200 - ((countnamefirm[index+pos] * 8) / 2))-(bmp[BMP_CURSER_L].width + 10), (50 + (index*15+2))-(bmp[BMP_CURSER_L].height / 2) );
+		if(!(no_bmp & NO_CURSER_L))Draw_BMP(&bmp[BMP_CURSER_L], TOP, (200 - ((countnamefirm[index] * 8) / 2))-(bmp[BMP_CURSER_L].width + 10), (50 + (index*15+2))-(bmp[BMP_CURSER_L].height / 2) );
 		//curser RIGHT - DROITE
 		bmp[BMP_BG_TOP].width = bmp[BMP_CURSER_R].width;
 		bmp[BMP_BG_TOP].height = bmp[BMP_CURSER_R].height;
-		if(!(no_bmp & NO_CURSER_R))Draw_BMP(&bmp[BMP_CURSER_R], TOP, 200 + ((countnamefirm[index+pos] * 8) / 2)+10, (50 + (index*15+2))-(bmp[BMP_CURSER_R].height / 2) );
+		if(!(no_bmp & NO_CURSER_R))Draw_BMP(&bmp[BMP_CURSER_R], TOP, 200 + ((countnamefirm[index] * 8) / 2)+10, (50 + (index*15+2))-(bmp[BMP_CURSER_R].height / 2) );
 		
 		
 		DrawStringFColor(COLOR_RED, COLOR_TRANSPARENT, 200 - ((18 * 8) / 2), 10, true, "Boot9Strap Manager");
-		if(c_page > 0)DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 30, 80, true, "P - %d", page);
 		
 		u32 pad_state = InputWait();
 			
 		if (pad_state & BUTTON_A) {
 			
-			loadFirm(NANDorSD, true, pos+index);
+			loadFirm(NANDorSD, true, index);
 			
 		} else if (pad_state & BUTTON_DOWN) {
 			
-			index = (index+pos == count-1) ? 0 : (index+pos+1 == 10)? 0 : index + 1;	
+			index = (index == count-1) ? 0 : index + 1;	
 		
 		} else if (pad_state & BUTTON_UP) {
 			
-			index = (index == 0) ? ((pos+10 > count) ? ((count-1)-pos) : 9) : index - 1;	
+			index = (index == 0) ? count-1 : index - 1;	
 		
 		} else if (pad_state & BUTTON_X) {
 			DumpBoot9_11_OTP(NANDorSD);	
@@ -200,27 +158,7 @@ void BS9Manager(bool NANDorSD)
 			refresh_b9sm = true;
 		} else if (pad_state & BUTTON_POWER) {
 			mcuPowerOff();	
-		} else if (pad_state & BUTTON_R1) {
-			
-			page = (page == c_page) ? 0 : page + 1;
-			
-			if(page == 0)pos=0;
-			if(page == 1)pos=10;
-			if(page == 2)pos=20;
-			if(page == 3)pos=30;
-			
-			refresh_page = true;
-		} else if (pad_state & BUTTON_L1) {
-			
-			page = (page == 0) ? c_page : page + 1;
-			
-			if(page == 0)pos=0;
-			if(page == 1)pos=10;
-			if(page == 2)pos=20;
-			if(page == 3)pos=30;
-			
-			refresh_page = true;
-		}
+		} 
 		
 	}
 	
@@ -354,26 +292,16 @@ u32 DumpNand(void)
 				DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 20, true, "Dump SysNand: %3llu%%", (i * 100) / n_sectors);
 				
 				
-				//read sectors nand 1mb
 				if (sdmmc_nand_readsectors(i, read_sectors, buffer) != 0)  {   
 					result = 1;
 					Close_File();
-					//f_close(&file);
 					break;
 				}
-				
-			//Write the nand sectors to the file
-				
-				//UINT bytes_written = 0;
-				//f_lseek(&file, i * NAND_SECTOR_SIZE);
-				//if (f_write(&file, buffer, NAND_SECTOR_SIZE * read_sectors, &bytes_written) != 0) { 
 				if (Write_File(buffer, NAND_SECTOR_SIZE * read_sectors, i * NAND_SECTOR_SIZE) != true) { 
 					result = 2;
 					Close_File();
-					//f_close(&file);
 					break;
 				}
-				//f_sync(&file);
 				sha_update(buffer, NAND_SECTOR_SIZE * read_sectors);
 				
 				
@@ -383,7 +311,6 @@ u32 DumpNand(void)
 					if (InputWait() & BUTTON_A) {
 						result = 3;
 						Close_File();
-						//f_close(&file);
 						break;
 						
 					} else {
@@ -396,7 +323,6 @@ u32 DumpNand(void)
 			Close_File();
 			//progress
 			DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 20, true, "Dump SysNand: 100%");
-			//f_close(&file);
 			break;
 		}
 	}
@@ -459,7 +385,7 @@ u32 RestoreNand(u32 param)
 	
 	DrawStringFColor(COLOR_RED, COLOR_BLACK, 10, 10, true, "<WARNING RISK BRICK>.");
 	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 30, true, "Press <A> to restore the Sysnand.");
-	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 40, true, "Press <B> to return to manager.");
+	DrawStringFColor(COLOR_WHITE, COLOR_BLACK, 10, 40, true, "Press any key to return to manager.");
 	
 	u32 button = InputWait();
 		
@@ -479,9 +405,7 @@ u32 RestoreNand(u32 param)
 			
 		}else result = 6;
 		
-	} else if(button & BUTTON_B) {
-		result = 3;
-	}
+	} else result = 3;
 	
 	
 	
@@ -533,7 +457,8 @@ u32 RestoreNand(u32 param)
 							
 							//start_sector = 0x00012E00 / NAND_SECTOR_SIZE;
 							start_sector = partitions[0].offset / NAND_SECTOR_SIZE;
-							//end_sector = (0x0B930000 - 0x00012E00) / NAND_SECTOR_SIZE;
+							
+							//end_sector = ((0x0B100000+0x00030000) - 0x00012E00) / NAND_SECTOR_SIZE;
 							end_sector = ((partitions[2].offset + partitions[2].size) - partitions[0].offset) / NAND_SECTOR_SIZE;
 							
 						} else { // CTRNAND (full size) (FIRM skipped)
