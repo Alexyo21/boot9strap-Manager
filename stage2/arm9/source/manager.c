@@ -169,9 +169,12 @@ u32 Menu_Dump_Restore()
 	u32 count = 3;
     u32 index = 0;
 	
-	const char *options[3] = {	"DUMP NAND FULL",
+	const char *options[5] = {	"DUMP NAND FULL",
 								"RESTORE NAND (full)",
-								"RESTORE NAND (keep hax)"
+								"RESTORE NAND (keep hax)",
+								"RESTORE NAND (full)(no verif .sha)",
+								"RESTORE NAND (keep hax)(no verif .sha)"
+								
 	};
 	
 	ClearScreenF(true, true, COLOR_BLACK);
@@ -202,6 +205,8 @@ u32 Menu_Dump_Restore()
 			if(index == 0) DumpNand();
 			if(index == 1) RestoreNand(FULL_NAND);
 			if(index == 2) RestoreNand(KEEP_HAX);
+			if(index == 3) RestoreNand(FULL_NAND|NO_VERIF);
+			if(index == 4) RestoreNand(KEEP_HAX|NO_VERIF);
 			
 		} else if (pad_state & BUTTON_B) {
             DrawStringFColor(COLOR_ORANGE, COLOR_BLACK, 10, 70, true, "(cancelled by user)");
@@ -393,15 +398,19 @@ u32 RestoreNand(u32 param)
 		
 		if(ShowUnlockSequence(5))
 		{
-			//verification dump sha
-			u32 hash = CheckNandDumpIntegrity("SYSNAND.bin");
-			if(hash != HASH_VERIFIED)
+			if(!(param & NO_VERIF))
 			{
-				result = (hash == HASH_FAILED)? 7 : 8;
-			} else {
-				DrawStringFColor(COLOR_GREEN, COLOR_BLACK, 10, 20, true,"Verification passed");
-				
+				//verification dump sha
+				u32 hash = CheckNandDumpIntegrity("SYSNAND.bin");
+				if(hash != HASH_VERIFIED)
+				{
+					result = (hash == HASH_FAILED)? 7 : 8;
+				} else {
+					DrawStringFColor(COLOR_GREEN, COLOR_BLACK, 10, 20, true,"Verification passed");
+					
+				}
 			}
+			
 			
 		}else result = 6;
 		

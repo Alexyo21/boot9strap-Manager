@@ -6,6 +6,7 @@
 
 #define FULL_NAND	(1<<0)
 #define KEEP_HAX	(1<<1)
+#define NO_VERIF	(1<<2)
 
 #define BUFFER_ADDRESS  ((u8*) 0x18000000)
 #define BUFFER_MAX_SIZE ((u32) (1 * 1024 * 1024))
